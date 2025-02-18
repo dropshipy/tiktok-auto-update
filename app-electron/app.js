@@ -1,10 +1,17 @@
 require("dotenv").config({ path: __dirname + "/../.env" });
 
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  autoUpdater,
+} = require("electron");
 
 const path = require("node:path");
 
 const express = require("express");
+const { autoUpdater } = require("electron-updater");
 const { authenticateUserApp } = require("./function/browser/authenticate-app");
 const ElectronStore = require("electron-store");
 const {
@@ -89,6 +96,48 @@ if (selectedBrowser && !selectedBrowser?.isChromium) {
 console.log("Chromium executable path:", chromePath);
 
 let mainWindow;
+
+const feedURL = `https://github.com/dropshipy/tiktok-auto-update/releases/download/v1.0.0/latest-mac.yml`;
+
+autoUpdater.setFeedURL({
+  provider: "github",
+  owner: "dropshipy",
+  repo: "tiktok-auto-update",
+});
+
+autoUpdater.checkForUpdatesAndNotify();
+
+autoUpdater.on("update-available", () => {
+  dialog
+    .showMessageBox({
+      type: "info",
+      title: "Update Available",
+      message: "A new version is available. Do you want to update now?",
+      buttons: ["Yes", "No"],
+    })
+    .then((result) => {
+      if (result.response === 0) {
+        autoUpdater.downloadUpdate();
+      }
+    });
+});
+
+autoUpdater.on("update-downloaded", () => {
+  dialog
+    .showMessageBox({
+      type: "info",
+      title: "Update Ready",
+      message:
+        "The update is downloaded. It will be installed on the next restart.",
+      buttons: ["Restart now", "Later"],
+    })
+    .then((result) => {
+      if (result.response === 0) {
+        autoUpdater.quitAndInstall();
+      }
+    });
+});
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,

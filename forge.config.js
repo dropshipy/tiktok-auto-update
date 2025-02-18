@@ -28,4 +28,10 @@ module.exports = {
       config: {},
     },
   ],
+  electronUpdater: {
+    provider: "github",
+    owner: "dropshipy", // Ganti dengan username GitHub kamu
+    repo: "tiktok-auto-update", // Ganti dengan nama repository GitHub kamu
+    updateCheckInterval: "1 minute",
+  },
 };
